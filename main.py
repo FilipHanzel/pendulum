@@ -1,6 +1,7 @@
 import pygame
 
 from pendulum import Pendulum
+from double_pendulum import DoublePendulum
 
 
 def main():
@@ -10,7 +11,20 @@ def main():
 
     clock = pygame.time.Clock()
 
-    pendulum = Pendulum(400, 400, 5, 3)
+    is_double = True
+    if is_double:
+        pendulum = DoublePendulum(
+            x=400,
+            y=200,
+            first_arm_length=5,
+            second_arm_length=5,
+            first_angle=3.0,
+            second_angle=3.0,
+            first_mass=10,
+            second_mass=10,
+        )
+    else:
+        pendulum = Pendulum(x=400, y=400, arm_length=5, angle=3)
 
     update_time = 1 / 60
     time_passed = 0
@@ -27,12 +41,24 @@ def main():
             pendulum.update()
             time_passed -= update_time
 
-        pygame.draw.aaline(
-            screen,
-            (255, 255, 255),
-            (pendulum.x, pendulum.y),
-            (pendulum.bob_x, pendulum.bob_y),
-        )
+        if is_double:
+            pygame.draw.aalines(
+                surface=screen,
+                color=(255, 255, 255),
+                closed=False,
+                points=(
+                    (pendulum.x, pendulum.y),
+                    (pendulum.first_bob.x, pendulum.first_bob.y),
+                    (pendulum.second_bob.x, pendulum.second_bob.y),
+                ),
+            )
+        else:
+            pygame.draw.aaline(
+                screen,
+                (255, 255, 255),
+                (pendulum.x, pendulum.y),
+                (pendulum.bob_x, pendulum.bob_y),
+            )
 
         pygame.display.flip()
 
