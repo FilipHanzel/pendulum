@@ -1,30 +1,17 @@
 import pygame
+import click
+from typing import Union
 
 from pendulum import Pendulum
 from double_pendulum import DoublePendulum
 
 
-def main():
+def run(pendulum: Union[Pendulum, DoublePendulum]):
     pygame.init()
     screen = pygame.display.set_mode((800, 800))
     pygame.display.set_caption("Pendulum")
 
     clock = pygame.time.Clock()
-
-    is_double = True
-    if is_double:
-        pendulum = DoublePendulum(
-            x=400,
-            y=200,
-            first_arm_length=5,
-            second_arm_length=5,
-            first_angle=3.0,
-            second_angle=3.0,
-            first_mass=10,
-            second_mass=10,
-        )
-    else:
-        pendulum = Pendulum(x=400, y=400, arm_length=5, angle=3)
 
     update_time = 1 / 60
     time_passed = 0
@@ -41,7 +28,7 @@ def main():
             pendulum.update()
             time_passed -= update_time
 
-        if is_double:
+        if isinstance(pendulum, DoublePendulum):
             pygame.draw.aalines(
                 surface=screen,
                 color=(255, 255, 255),
@@ -65,5 +52,31 @@ def main():
     pygame.quit()
 
 
+@click.group()
+def cli():
+    pass
+
+
+@cli.command("pendulum")
+def run_pendulum():
+    run(Pendulum(x=400, y=400, arm_length=5, angle=3))
+
+
+@cli.command("double-pendulum")
+def run_double_pendulum():
+    run(
+        DoublePendulum(
+            x=400,
+            y=200,
+            first_arm_length=5,
+            second_arm_length=5,
+            first_angle=3.0,
+            second_angle=3.0,
+            first_mass=10,
+            second_mass=10,
+        )
+    )
+
+
 if __name__ == "__main__":
-    main()
+    cli()
